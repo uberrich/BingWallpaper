@@ -8,3 +8,5 @@ Set-Location -Path "$env:USERPROFILE\Pictures\BingWallpaper"
 
 $imagefilename = [System.Web.HttpUtility]::ParseQueryString(([uri]::new("http://www.bing.com$($bingimagedata.images[0].url)")).Query).Get("id")
 
+Invoke-WebRequest -Uri "https://www.bing.com$($bingimagedata.images[0].url)" -OutFile $imagefilename
+$bingimagedata.images[0] | Format-List title,copyright | out-file -FilePath "$imagefilename.txt"
