@@ -13,8 +13,10 @@ $bingimagedata.images[0] | Format-List title,copyright | out-file -FilePath "$wa
 
 $wpfiles = Get-ChildItem -Path $wallpaperdir
 
-$wpfiles | ForEach-Object {
-    if ($_.CreationTimeUtc.CompareTo([DateTime]::UtcNow.AddDays(-3)) -eq -1 ) {
-        $_ | Remove-Item
+if ($wpfiles.count -gt 6) {
+    $wpfiles | ForEach-Object {
+        if ($_.CreationTimeUtc.CompareTo([DateTime]::UtcNow.AddDays(-3)) -eq -1 ) {
+            $_ | Remove-Item
+        }
     }
 }
