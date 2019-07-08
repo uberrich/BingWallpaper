@@ -13,7 +13,7 @@ $bingimagedata.images[0] | Format-List title,copyright | out-file -FilePath "$wa
 
 $wpfiles = Get-ChildItem -Path $wallpaperdir
 
-while ($wpfiles.count -gt 6) {
+while ($wpfiles.count -gt 10) {
     $wpfiles | Sort-Object CreationTime | Select-Object -First 2 | Remove-Item
     $wpfiles = Get-ChildItem -Path $wallpaperdir
 }
