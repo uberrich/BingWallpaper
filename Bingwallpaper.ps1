@@ -1,4 +1,4 @@
-$wallpaperdir = "$env:USERPROFILE\Pictures\BingWallpaperTest"
+$wallpaperdir = "$env:USERPROFILE\Pictures\BingWallpaper"
 
 if (-not (Test-Path "$wallpaperdir")) {
     New-Item -ItemType Directory -Path "$wallpaperdir"
