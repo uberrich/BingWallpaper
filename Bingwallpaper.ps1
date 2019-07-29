@@ -20,7 +20,7 @@ if ($wpfiles -ne $null) {
 
 $sFormat = [System.Drawing.StringFormat]::new()
 $sFormat.alignment = [System.Drawing.StringAlignment]::Far
-$font1 = [System.Drawing.Font]::new("Segoe UI",28)
+$font1 = [System.Drawing.Font]::new("Segoe UI",24)
 $font2 = [System.Drawing.Font]::new("Segoe UI",14)
 $textbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(64,64,64))
 $fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(128,255,255,255))
@@ -28,12 +28,9 @@ $fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(1
 
 $bingimagedata = Invoke-RestMethod -Uri "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=$daysToGet&mkt=en-GB" -Method Get
 
-$bingimagedata | ConvertTo-Json | Out-File -FilePath "$wallpaperdir\bingimagedata.json"
-
 $bingimagedata.images | ForEach-Object {
     $imagefilename = [System.Web.HttpUtility]::ParseQueryString(([uri]::new("http://www.bing.com$($_.url)")).Query).Get("id")
     Invoke-WebRequest -Uri "https://www.bing.com$($_.url)" -OutFile "$wallpaperdir\$imagefilename"
-    #Start-Sleep -Seconds 10 
     $imageText = $_ | Select-Object @{l='Title';e={$_.title}},@{l='Description';e={$_.copyright}}
     
     $imageText | Format-List | Out-File -FilePath "$wallpaperdir\$imagefilename.txt"
@@ -43,23 +40,18 @@ $bingimagedata.images | ForEach-Object {
     $image = [System.Drawing.Graphics]::FromImage($bmp)
     $SR = $bmp | Select-Object Width,Height
     $szTitle = $image.MeasureString($($imageText.Title), $font1)
-    $szDescription = $image.MeasureString($imageText.Description, $font2)
     $rect1 = [System.Drawing.RectangleF]::new(0,$szTitle.Height,($SR.Width - $szTitle.Height),$SR.Height)
-    $rect2 = [System.Drawing.RectangleF]::new(0,($szTitle.Height * 2),($SR.Width - $szTitle.Height),$SR.Height)
-    
-    if ($szTitle.Width -gt $szDescription.Width) {
-        $rectWidth = $szTitle.Width
-    } else {
-        $rectWidth = $szDescription.Width
-    }
+    $rect2 = [System.Drawing.RectangleF]::new(($SR.Width - $szTitle.Height - $szTitle.Width),($szTitle.Height * 2),$szTitle.Width, $SR.Height)
+    $areaDescription = [System.Drawing.SizeF]::new($rect2.Width, $rect2.Height)
+    $szDescription = $image.MeasureString($imageText.Description, $font2, $areaDescription)
 
-    $rectFill = [System.Drawing.RectangleF]::new(($SR.Width - $szTitle.Height - $rectWidth), $szTitle.Height, $rectWidth, ($szTitle.Height + $szDescription.Height))
+    $rectFill = [System.Drawing.RectangleF]::new(($SR.Width - $szTitle.Height - $szTitle.Width), $szTitle.Height, $szTitle.Width, ($szTitle.Height + $szDescription.Height))
     $image.FillRectangle($fillbrush, $rectFill)
 
     $image.DrawString($imageText.Title, $font1, $textbrush, $rect1, $sFormat)
     $image.DrawString($imageText.Description, $font2, $textbrush, $rect2, $sFormat)
     $image.Dispose()
-    $bmp.Save("$wallpaperdir\$imagefilename.captioned.jpg", [System.Drawing.Imaging.ImageFormat]::Jpeg)
+    $bmp.Save("$wallpaperdir\$imagefilename.captioned.bmp", [System.Drawing.Imaging.ImageFormat]::Bmp)
     $bmp.Dispose()
     get-item -path "$wallpaperdir\$imagefilename" | Remove-Item
 }
