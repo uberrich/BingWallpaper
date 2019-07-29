@@ -23,7 +23,7 @@ $sFormat.alignment = [System.Drawing.StringAlignment]::Far
 $font1 = [System.Drawing.Font]::new("Segoe UI",28)
 $font2 = [System.Drawing.Font]::new("Segoe UI",14)
 $textbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(64,64,64))
-$fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(224,255,255,255))
+$fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(128,255,255,255))
 
 
 $bingimagedata = Invoke-RestMethod -Uri "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=$daysToGet&mkt=en-GB" -Method Get
@@ -42,10 +42,20 @@ $bingimagedata.images | ForEach-Object {
     $bmp = [System.Drawing.Bitmap]::FromFile($imageFile)
     $image = [System.Drawing.Graphics]::FromImage($bmp)
     $SR = $bmp | Select-Object Width,Height
-    $sz = $image.MeasureString($($imageText.Title), $font1)
-    $rect1 = [System.Drawing.RectangleF]::new(0,$sz.Height,($SR.Width - $sz.Height),$SR.Height)
-    $rect2 = [System.Drawing.RectangleF]::new(0,($sz.Height * 2),($SR.Width - $sz.Height),$SR.Height)
-    $image.FillRectangle($fillbrush, $rect1)
+    $szTitle = $image.MeasureString($($imageText.Title), $font1)
+    $szDescription = $image.MeasureString($imageText.Description, $font2)
+    $rect1 = [System.Drawing.RectangleF]::new(0,$szTitle.Height,($SR.Width - $szTitle.Height),$SR.Height)
+    $rect2 = [System.Drawing.RectangleF]::new(0,($szTitle.Height * 2),($SR.Width - $szTitle.Height),$SR.Height)
+    
+    if ($szTitle.Width -gt $szDescription.Width) {
+        $rectWidth = $szTitle.Width
+    } else {
+        $rectWidth = $szDescription.Width
+    }
+
+    $rectFill = [System.Drawing.RectangleF]::new(($SR.Width - $szTitle.Height - $rectWidth), $szTitle.Height, $rectWidth, ($szTitle.Height + $szDescription.Height))
+    $image.FillRectangle($fillbrush, $rectFill)
+
     $image.DrawString($imageText.Title, $font1, $textbrush, $rect1, $sFormat)
     $image.DrawString($imageText.Description, $font2, $textbrush, $rect2, $sFormat)
     $image.Dispose()
