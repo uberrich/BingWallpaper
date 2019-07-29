@@ -22,7 +22,8 @@ $sFormat = [System.Drawing.StringFormat]::new()
 $sFormat.alignment = [System.Drawing.StringAlignment]::Far
 $font1 = [System.Drawing.Font]::new("Segoe UI",28)
 $font2 = [System.Drawing.Font]::new("Segoe UI",14)
-$brush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(192,192,192))
+$textbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(64,64,64))
+$fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(224,255,255,255))
 
 
 $bingimagedata = Invoke-RestMethod -Uri "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=$daysToGet&mkt=en-GB" -Method Get
@@ -44,8 +45,9 @@ $bingimagedata.images | ForEach-Object {
     $sz = $image.MeasureString($($imageText.Title), $font1)
     $rect1 = [System.Drawing.RectangleF]::new(0,$sz.Height,($SR.Width - $sz.Height),$SR.Height)
     $rect2 = [System.Drawing.RectangleF]::new(0,($sz.Height * 2),($SR.Width - $sz.Height),$SR.Height)
-    $image.DrawString($imageText.Title, $font1, $brush, $rect1, $sFormat)
-    $image.DrawString($imageText.Description, $font2, $brush, $rect2, $sFormat)
+    $image.FillRectangle($fillbrush, $rect1)
+    $image.DrawString($imageText.Title, $font1, $textbrush, $rect1, $sFormat)
+    $image.DrawString($imageText.Description, $font2, $textbrush, $rect2, $sFormat)
     $image.Dispose()
     $bmp.Save("$wallpaperdir\$imagefilename.captioned.jpg", [System.Drawing.Imaging.ImageFormat]::Jpeg)
     $bmp.Dispose()
