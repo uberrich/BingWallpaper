@@ -41,16 +41,6 @@ $bingimagedata.images | ForEach-Object {
     $image = [System.Drawing.Graphics]::FromImage($bmp)
     $SR = $bmp | Select-Object Width,Height
 
-    # $szTitle = $image.MeasureString($imageText.Title, $font1)
-    # $rectTitle = [System.Drawing.RectangleF]::new((($SR.Width / 2) - ($szTitle.Width / 2)), ($szTitle.Height / 2), $szTitle.Width, $szTitle.Height)
-    # $image.FillRectangle($fillbrush, $rectTitle)
-    # $image.DrawString($imageText.Title, $font1, $textbrush, $rectTitle, $sFormat)
-
-    # $szDescription = $image.MeasureString($imageText.Description, $font2)
-    # $rectDescription = [System.Drawing.RectangleF]::new((($SR.Width / 2) - ($szDescription.Width / 2)), ($SR.Height - ($szDescription.Height * 3)), $szDescription.Width, $szDescription.Height)
-    # $image.FillRectangle($fillbrush, $rectDescription)
-    # $image.DrawString($imageText.Description, $font2, $textbrush, $rectDescription, $sFormat)
-
     $szText = $image.MeasureString(($imageText.Title + " | " + $imageText.Description), $font2)
     $rectText = [System.Drawing.RectangleF]::new((($SR.Width / 2) - ($szText.Width / 2)), ($SR.Height - ($szText.Height * 4)), $szText.Width, $szText.Height)
     $image.FillRectangle($fillbrush, $rectText)
