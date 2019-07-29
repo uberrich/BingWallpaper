@@ -38,10 +38,10 @@ $bingimagedata.images | ForEach-Object {
     $image = [System.Drawing.Graphics]::FromImage($bmp)
     $SR = $bmp | Select-Object Width,Height
     $sz = $image.MeasureString($($imageText.Title), $font)
-    $rect = [System.Drawing.RectangleF]::new(0,$sz.Height,$SR.Width,$SR.Height)
+    $rect = [System.Drawing.RectangleF]::new(0,$sz.Height,($SR.Width - $sz.Height),$SR.Height)
     $image.DrawString("$($imageText.Title)`n$($imageText.copyright)", $font, $brush, $rect, $sFormat)
     $image.Dispose()
-    $bmp.Save("$wallpaperdir\$imagefilename.jpeg", [System.Drawing.Imaging.ImageFormat]::Jpeg)
+    $bmp.Save("$wallpaperdir\$imagefilename.captioned.jpg", [System.Drawing.Imaging.ImageFormat]::Jpeg)
     $bmp.Dispose()
 }
 
