@@ -23,8 +23,8 @@ $sFormat.alignment = [System.Drawing.StringAlignment]::Center
 $sFormat.LineAlignment = [System.Drawing.StringAlignment]::Center
 $font1 = [System.Drawing.Font]::new("Segoe UI",18)
 $font2 = [System.Drawing.Font]::new("Segoe UI",10)
-$textbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(64,64,64))
-$fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(128,255,255,255))
+$textbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::Black)
+$fillbrush = [System.Drawing.SolidBrush]::new([System.Drawing.Color]::FromArgb(96,255,255,255))
 
 
 $bingimagedata = Invoke-RestMethod -Uri "https://www.bing.com/HPImageArchive.aspx?format=js&idx=0&n=$daysToGet&mkt=en-GB" -Method Get
