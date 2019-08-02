@@ -32,7 +32,7 @@ $bingimagedata = Invoke-RestMethod -Uri "https://www.bing.com/HPImageArchive.asp
 $bingimagedata.images | ForEach-Object {
     $imagefilename = [System.Web.HttpUtility]::ParseQueryString(([uri]::new("http://www.bing.com$($_.url)")).Query).Get("id")
     Invoke-WebRequest -Uri "https://www.bing.com$($_.url)" -OutFile "$wallpaperdir\$imagefilename"
-    $imageText = $_ | Select-Object @{l='Title';e={$_.title}},@{l='Description';e={$_.copyright}}
+    $imageText = $_ | Select-Object @{l='Title';e={$_.title}},@{l='Description';e={$_.copyright}},@{l='Date';e={[System.DateTime]::ParseExact($_.enddate, "yyyyMMdd", $null)}}
     
     $imageText | Format-List | Out-File -FilePath "$wallpaperdir\$imagefilename.txt"
 
