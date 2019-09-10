@@ -90,7 +90,7 @@ $bingimagedata.images | ForEach-Object {
     Write-Log -Message "Deleted image file: $imagefilename" -LogFileName $logfilepath
 }
 
-$wpfiles = Get-ChildItem -Path $wallpaperdir -Exclude "*.json"
+$wpfiles = Get-ChildItem -Path $wallpaperdir -Exclude @("*.json","*.log")
 
 while ($wpfiles.count -gt 10) {
     Write-Log -Message "More than ten files exist. Cleaning up." -LogFileName $logfilepath
