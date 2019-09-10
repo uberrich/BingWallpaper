@@ -19,7 +19,7 @@ function Write-Log {
         "Time (UTC)" = ([system.datetime]::Utcnow.tostring('u').replace(' ','T'))
         Severity = $Severity
         Message = $Message
-    } | Export-Csv -Path  $LogFileName -Append -NoTypeInformation
+    } | Export-Csv -Path  $LogFileName -Append -NoTypeInformation -Delimiter "`t"
 }
 
 
@@ -93,7 +93,8 @@ $bingimagedata.images | ForEach-Object {
 $wpfiles = Get-ChildItem -Path $wallpaperdir -Exclude "*.json"
 
 while ($wpfiles.count -gt 10) {
+    Write-Log -Message "More than ten files exist. Cleaning up." -LogFileName $logfilepath
     $wpfiles | Sort-Object CreationTime | Select-Object -First 2 | Remove-Item
-    Write-Log -Message "Deleted file(s): " + ($wpfiles | Sort-Object CreationTime | Select-Object -First 2).Name -LogFileName $logfilepath
+    Write-Log -Message "Deleted file(s): $(($wpfiles | Sort-Object CreationTime | Select-Object -First 2).Name)" -LogFileName $logfilepath
     $wpfiles = Get-ChildItem -Path $wallpaperdir
 }
