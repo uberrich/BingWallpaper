@@ -1,7 +1,36 @@
+function Write-Log {
+    param(
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$Message,
+
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [ValidateSet('Information','Warning','Error')]
+        [string]$Severity = 'Information',
+
+        # Name of the resource group that this log entry refers to
+        [Parameter()]
+        [ValidateNotNullOrEmpty()]
+        [string]$LogFileName
+    )
+
+    [pscustomobject]@{
+        "Time (UTC)" = ([system.datetime]::Utcnow.tostring('u').replace(' ','T'))
+        Severity = $Severity
+        Message = $Message
+    } | Export-Csv -Path  $LogFileName -Append -NoTypeInformation
+}
+
+
 $wallpaperdir = "$env:USERPROFILE\Pictures\BingWallpaper"
+$logfile = "BingWallpaper.log"
+
+$logfilepath = $wallpaperdir + '\' + $logfile
 
 if (-not (Test-Path "$wallpaperdir")) {
     New-Item -ItemType Directory -Path "$wallpaperdir"
+    Write-Log -Message "Created new wallpaper directory: $wallpaperdir" -LogFileName $logfilepath
 }
 
 $wpfiles = Get-ChildItem -Path $wallpaperdir
@@ -14,9 +43,14 @@ if ($wpfiles -ne $null) {
     if ($daysToGet -lt 1) {
         $daysToGet = 1
     }
+
+    Write-Log -Message "Some wallpaper files already exist." -LogFileName $logfilepath
 } else {
+    Write-Log -Message "No wallpaper files already exist." -LogFileName $logfilepath
     $daysToGet = 5
 }
+
+Write-Log -Message "Getting $daysToGet wallpaper files." -LogFileName $logfilepath
 
 $sFormat = [System.Drawing.StringFormat]::new()
 $sFormat.alignment = [System.Drawing.StringAlignment]::Center
@@ -32,9 +66,11 @@ $bingimagedata = Invoke-RestMethod -Uri "https://www.bing.com/HPImageArchive.asp
 $bingimagedata.images | ForEach-Object {
     $imagefilename = [System.Web.HttpUtility]::ParseQueryString(([uri]::new("http://www.bing.com$($_.url)")).Query).Get("id")
     Invoke-WebRequest -Uri "https://www.bing.com$($_.url)" -OutFile "$wallpaperdir\$imagefilename"
+    Write-Log -Message "Downloaded image file: $imagefilename" -LogFileName $logfilepath
     $imageText = $_ | Select-Object @{l='Title';e={$_.title}},@{l='Description';e={$_.copyright}},@{l='Date';e={[System.DateTime]::ParseExact($_.enddate, "yyyyMMdd", $null)}}
     
     $imageText | Format-List | Out-File -FilePath "$wallpaperdir\$imagefilename.txt"
+    Write-Log -Message "Wrote image description file: $imagefilename.txt" -LogFileName $logfilepath
 
     $imageFile = Get-Item -Path "$wallpaperdir\$imagefilename"
     $bmp = [System.Drawing.Bitmap]::FromFile($imageFile)
@@ -48,13 +84,16 @@ $bingimagedata.images | ForEach-Object {
     
     $image.Dispose()
     $bmp.Save("$wallpaperdir\$imagefilename.captioned.bmp", [System.Drawing.Imaging.ImageFormat]::Bmp)
+    Write-Log -Message "Wrote captioned image file: $imagefilename.captioned.bmp" -LogFileName $logfilepath
     $bmp.Dispose()
     get-item -path "$wallpaperdir\$imagefilename" | Remove-Item
+    Write-Log -Message "Deleted image file: $imagefilename" -LogFileName $logfilepath
 }
 
 $wpfiles = Get-ChildItem -Path $wallpaperdir -Exclude "*.json"
 
 while ($wpfiles.count -gt 10) {
     $wpfiles | Sort-Object CreationTime | Select-Object -First 2 | Remove-Item
+    Write-Log -Message "Deleted file(s): " + ($wpfiles | Sort-Object CreationTime | Select-Object -First 2).Name -LogFileName $logfilepath
     $wpfiles = Get-ChildItem -Path $wallpaperdir
 }
