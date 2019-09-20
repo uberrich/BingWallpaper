@@ -96,5 +96,5 @@ while ($wpfiles.count -gt 10) {
     Write-Log -Message "More than ten files exist. Cleaning up." -LogFileName $logfilepath
     $wpfiles | Sort-Object CreationTime | Select-Object -First 2 | Remove-Item
     Write-Log -Message "Deleted file(s): $(($wpfiles | Sort-Object CreationTime | Select-Object -First 2).Name)" -LogFileName $logfilepath
-    $wpfiles = Get-ChildItem -Path $wallpaperdir
+    $wpfiles = Get-ChildItem -Path $wallpaperdir -Exclude @("*.json","*.log")
 }
