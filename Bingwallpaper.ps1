@@ -33,7 +33,7 @@ if (-not (Test-Path "$wallpaperdir")) {
     Write-Log -Message "Created new wallpaper directory: $wallpaperdir" -LogFileName $logfilepath
 }
 
-$wpfiles = Get-ChildItem -Path $wallpaperdir
+$wpfiles = Get-ChildItem -Path $wallpaperdir/*bmp
 
 if ($wpfiles -ne $null) {
     $newestFileDate = ( $wpfiles | Sort-Object CreationTime | Select-Object -Last 1 ).CreationTime
